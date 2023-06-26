@@ -1,0 +1,14 @@
+.block {
+  padding: 1.4rem;
+  background: rgba(var(--y-black-50-rgb), 0.25);
+  border-radius: 1.75rem;
+}
+.block .title {
+  font-size: 1.55rem;
+  font-weight: 500;
+  color: var(--y-black-500);
+}
+
+.block .detail {
+  color: var(--y-black-200);
+}
