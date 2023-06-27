@@ -25,19 +25,6 @@ export default class AddPerson extends Component<Props, State>{
     constructor(props: Props) {
         super(props);
 
-        this.onChangeName = this.onChangeName.bind(this);
-        this.onChangeEmail = this.onChangeEmail.bind(this);
-        this.onChangeLabel = this.onChangeLabel.bind(this);
-        this.onChangePaymentMethod = this.onChangePaymentMethod.bind(this);
-        this.retrieveLabels = this.retrieveLabels.bind(this);
-        this.resetData = this.resetData.bind(this);
-        this.validateEmail = this.validateEmail.bind(this);
-        this.validateName = this.validateName.bind(this);
-        this.validatePaymentMethod = this.validatePaymentMethod.bind(this);
-        this.validateForm = this.validateForm.bind(this);
-        this.submitForm = this.submitForm.bind(this);
-
-
         this.state = {
             listLabel: [],
             isSubmitting: false,
@@ -52,26 +39,38 @@ export default class AddPerson extends Component<Props, State>{
     }
 
     componentDidMount = (): void => {
-        this.retrieveLabels();
+        this.loadPage();
+    }
+
+    loadPage = (): void => {
         this.resetData();
+        this.retrieveLabels();
     }
 
     retrieveLabels = async (): Promise<void> => {
-        LabelDataService.getAllLabels()
-            .then((response: any) => {
-                this.setState({
-                    listLabel: response.data.data.items,
-                    label: response.data.data.items[0].id,
-                    paymentMethod: paymentMethods[0].value,
+        if (this.state.listLabel.length === 0) {
+            LabelDataService.getAllLabels()
+                .then((response: any) => {
+                    this.setState({
+                        listLabel: response.data.data.items,
+                        label: response.data.data.items[0].id,
+                        paymentMethod: paymentMethods[0].value,
+                    });
+                })
+                .catch((e: Error) => {
+                    console.log(e);
+                    SwalPopup.swalResultPopup("Sorry, looks like there are some errors detected, please try again.", "error");
+                    this.setState({
+                        listLabel: [],
+                    });
                 });
-            })
-            .catch((e: Error) => {
-                console.log(e);
-                SwalPopup.swalResultPopup("Sorry, looks like there are some errors detected, please try again.", "error");
-                this.setState({
-                    listLabel: [],
-                });
+        } else {
+            this.setState({
+                label: this.state.listLabel.length > 0 ? this.state.listLabel[0].id : '',
+                paymentMethod: paymentMethods[0].value,
             });
+        }
+
     }
 
     resetData = (): void => {
@@ -173,16 +172,14 @@ export default class AddPerson extends Component<Props, State>{
             .then((response: any) => {
                 SwalPopup.swalResultPopup("Added.", "success");
                 this.setState({
-                    listLabel: response.data.data.items,
                     isSubmitting: false,
                 });
-                this.resetData();
+                this.loadPage();
             })
             .catch((e: Error) => {
                 console.log(e);
                 SwalPopup.swalResultPopup("Sorry, looks like there are some errors detected, please try again.", "error");
                 this.setState({
-                    listLabel: [],
                     isSubmitting: false,
                 });
                 this.resetData();
@@ -221,7 +218,7 @@ export default class AddPerson extends Component<Props, State>{
                         <div className="col-md-6">
                             <div className="form-group form-group-y">
                                 <label>Label</label>
-                                <select value={label} onChange={this.onChangeLabel} className="form-control" placeholder="">
+                                <select value={label} onChange={this.onChangeLabel} className="form-control" placeholder="Select">
                                     {listLabel && listLabel.map((label: Label.Label) => (
                                         <option value={label.id} key={label.id}>{label.name}</option>
                                     ))}
@@ -242,7 +239,7 @@ export default class AddPerson extends Component<Props, State>{
                         <div className="col-md-6">
                             <div className="form-group form-group-y">
                                 <label>Payment Method</label>
-                                <select value={paymentMethod} onChange={this.onChangePaymentMethod} className="form-control" placeholder="">
+                                <select value={paymentMethod} onChange={this.onChangePaymentMethod} className="form-control" placeholder="Select">
                                     {paymentMethods.map((method: Person.PaymentMethodsOption) => (
                                         <option value={method.value} key={method.value}>{method.key}</option>
                                     ))}

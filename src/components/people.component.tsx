@@ -15,8 +15,6 @@ export default class People extends Component<Props, State> {
     constructor(props: Props) {
         super(props);
 
-        this.retrievePeople = this.retrievePeople.bind(this);
-
         this.state = {
             listPeople: [],
             loadingPeopleData: false
